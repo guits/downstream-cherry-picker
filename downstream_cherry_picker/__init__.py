@@ -169,6 +169,7 @@ def main(argv):
     commits = git('rev-list', '--reverse', f'{first}^..{last}').splitlines()
     log.info('Commits to cherry-pick: %r', commits)
     for commit in commits:
+        original_author = git('git', 'show', '-s', '--format="%aN <%aE>"', commit)
         try:
             git('cherry-pick', '-x', '--no-commit', commit)
         except subprocess.CalledProcessError as e:
@@ -187,7 +188,7 @@ def main(argv):
             log.info("Commit message:\n%s", f.read())
 
         try:
-            git('commit', '--no-edit')
+            git('commit', '--no-edit', '--author', original_author)
         except subprocess.CalledProcessError as e:
             log.error('%r', e)
             raise e
